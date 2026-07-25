@@ -56,22 +56,21 @@ speechSynthesis.speak(speech);
 
 function randomColour(){
 
-    const available = fishData
-    .filter(f => f.el.style.display !== "none")
-    .map(f =>
+    const alive = fishData.filter(f => f.el.style.display !== "none");
+
+    const aliveColours = alive.map(f =>
         [...f.el.classList].find(c => colours.includes(c))
     );
 
     currentColour =
-    available[Math.floor(Math.random()*available.length)];
+        aliveColours[Math.floor(Math.random() * aliveColours.length)];
 
     instruction.innerHTML =
-    "Catch the <b>" +
-    currentColour.toUpperCase() +
-    "</b> fish!";
+        "Catch the <b>" +
+        currentColour.toUpperCase() +
+        "</b> fish!";
 
     speak("Catch the " + currentColour + " fish");
-
 }
 
 playBtn.addEventListener("click",()=>{
@@ -204,7 +203,10 @@ function checkCatch(){
 
     for (let f of fishData){
 
-        if(f.el.style.display==="none") continue;
+        if(
+    f.el.style.display==="none" ||
+    f.el.dataset.caught==="1"
+) continue;
 
         const fishRect = f.el.getBoundingClientRect();
 
@@ -224,7 +226,8 @@ function checkCatch(){
 
             ding.currentTime = 0;
             ding.play();
-
+            f.el.style.pointerEvents = "none";
+            f.el.dataset.caught = "1";
             f.el.style.transition="transform .3s, opacity .3s";
 
             f.el.style.transform += " scale(.2)";
@@ -238,7 +241,7 @@ function checkCatch(){
 
                 points.textContent=score;
 
-                if(score==5){
+                if(score >= fishData.length){
 
                     win.currentTime=0;
                     win.play();
@@ -289,6 +292,8 @@ f.el.style.display="block";
 f.el.style.opacity="1";
 
 f.el.style.transform="";
+f.el.style.pointerEvents = "auto";
+delete f.el.dataset.caught;
 
 });
 
